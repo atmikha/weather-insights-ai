@@ -116,6 +116,3 @@ https://open-meteo.com/en/docs/historical-weather-api
 
 The Cloud Storage bucket is private. Local Application Default Credentials authenticate the Python program. API keys and credential files are excluded from Git through `.gitignore`.
 
-## Future Improvements
-
-See `FUTURE_IMPROVEMENTS.md` for proposed improvements to the pipeline.

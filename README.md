@@ -32,7 +32,7 @@ A Gemini-powered ADK agent initiates the pipeline through a custom Python functi
 ### 1. Clone the repository
 
 ```bash
-git clone [YOUR_GITHUB_REPOSITORY_URL](https://github.com/atmikha/weather-insights-ai.git)
+git clone https://github.com/atmikha/weather-insights-ai.git
 cd weather-insights-ai
 ```
 

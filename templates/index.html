@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Weather Insights AI</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fc;
+            color: #17233b;
+        }
+
+        header {
+            background: linear-gradient(120deg, #1748a3, #337bd6);
+            color: white;
+            padding: 38px 24px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0 0 10px;
+            font-size: 32px;
+        }
+
+        header p {
+            margin: 0;
+            opacity: 0.92;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .card, .chart-card, .error {
+            background: white;
+            padding: 24px;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+        }
+
+        .card h3 {
+            font-size: 14px;
+            font-weight: normal;
+            color: #66748b;
+            margin: 0 0 12px;
+        }
+
+        .value {
+            font-size: 30px;
+            font-weight: bold;
+            color: #1748a3;
+        }
+
+        .chart-card {
+            margin-bottom: 22px;
+        }
+
+        .chart-card h2 {
+            font-size: 19px;
+            margin-top: 0;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 290px;
+        }
+
+        .groups {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .groups th, .groups td {
+            padding: 12px;
+            border-bottom: 1px solid #e7ebf3;
+            text-align: left;
+        }
+
+        .groups th {
+            color: #66748b;
+            font-size: 13px;
+        }
+
+        .footer {
+            text-align: center;
+            color: #7b879a;
+            padding: 24px;
+            font-size: 13px;
+        }
+
+        .error {
+            color: #a22c38;
+        }
+
+        @media (max-width: 650px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Weather Insights AI</h1>
+    <p>Historical Weather Analytics | Bloomington, Indiana</p>
+</header>
+
+<main>
+
+{% if error %}
+    <div class="error">{{ error }}</div>
+{% elif weather %}
+
+    <p>
+        Analysis period:
+        <strong>{{ weather.start_date }} to {{ weather.end_date }}</strong>
+    </p>
+
+    <div class="stats">
+        <div class="card">
+            <h3>Average Daily Maximum Temperature</h3>
+            <div class="value">
+                {{ weather.average_max_temperature }}°C
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Total Precipitation</h3>
+            <div class="value">
+                {{ weather.total_precipitation }} mm
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Days Analyzed</h3>
+            <div class="value">
+                {{ weather.number_of_days }}
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <h2>Daily Maximum Temperature</h2>
+        <div class="chart-container">
+            <canvas id="temperatureChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <h2>Daily Precipitation</h2>
+        <div class="chart-container">
+            <canvas id="rainfallChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <h2>Grouped Weather Summary</h2>
+
+        <table class="groups">
+            <thead>
+                <tr>
+                    <th>Weather Type</th>
+                    <th>Days</th>
+                    <th>Avg. Max Temp.</th>
+                    <th>Total Rainfall</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for group in weather.weather_groups %}
+                <tr>
+                    <td>{{ group.weather_type }}</td>
+                    <td>{{ group.number_of_days }}</td>
+                    <td>{{ group.average_max_temperature }}°C</td>
+                    <td>{{ group.total_precipitation }} mm</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const observations = {{ weather.daily_data | tojson }};
+
+        const dates = observations.map(item => item.date);
+
+        const temperatures = observations.map(
+            item => item.max_temperature
+        );
+
+        const rainfall = observations.map(
+            item => item.precipitation
+        );
+
+        new Chart(
+            document.getElementById("temperatureChart"),
+            {
+                type: "line",
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: "Maximum Temperature (°C)",
+                        data: temperatures,
+                        borderColor: "#2875d4",
+                        backgroundColor: "rgba(40,117,212,0.12)",
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: "Temperature (°C)"
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+        new Chart(
+            document.getElementById("rainfallChart"),
+            {
+                type: "bar",
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: "Precipitation (mm)",
+                        data: rainfall,
+                        backgroundColor: "#65a7eb",
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: "Precipitation (mm)"
+                            }
+                        }
+                    }
+                }
+            }
+        );
+    </script>
+
+{% endif %}
+
+</main>
+
+<div class="footer">
+    Built with Google ADK, Open-Meteo, pandas,
+    Google Cloud Storage, Flask, and Chart.js
+</div>
+
+</body>
+</html>

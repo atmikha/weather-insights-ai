@@ -1,0 +1,8 @@
+
+requests
+pandas
+google-adk
+google-cloud-storage
+flask
+python-dotenv
+boto3

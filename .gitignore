@@ -1,0 +1,23 @@
+
+# Secret environment variables
+.env
+.env.*
+
+# Python virtual environments
+.venv/
+venv/
+
+# Python caches
+__pycache__/
+*.pyc
+
+# Local operating system files
+.DS_Store
+
+# Development files
+.vscode/
+.pytest_cache/
+
+# Google Cloud credentials
+application_default_credentials.json
+*service-account*.json
